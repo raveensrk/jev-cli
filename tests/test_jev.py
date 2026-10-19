@@ -154,6 +154,19 @@ class JevTest(unittest.TestCase):
                 with self.subTest(name), self.assertRaises(jev.CliError):
                     jev.image_asset(path)
 
+    def test_image_side_below_280_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(jev.CliError):
+                jev.image_asset(self.write_image(directory, "s.png", 279, 400))
+            jev.image_asset(self.write_image(directory, "ok.png", 280, 400))
+
+    def test_image_with_openrouter_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            png = self.write_image(directory, "a.png", 640, 480)
+            args = jev.parser().parse_args(["noul", "-q", "Receipt?", "-i", png, "--provider", "openrouter"])
+            with self.assertRaisesRegex(jev.CliError, "openrouter"):
+                jev.request_for(args)
+
     def test_image_requests_send_the_images_header(self):
         def respond(*_args, **_kwargs):
             response = MagicMock()

@@ -213,7 +213,7 @@ def state_value(value: str | None, force_json: bool) -> Any:
 
 IMAGE_HEADER = "TypeSafe-Danger-Zone-Images"
 IMAGE_MAX_BYTES = 16 * 1024 * 1024
-IMAGE_SIDE = (256, 1568)
+IMAGE_SIDE = (280, 1568)
 IMAGE_PIXELS = (78_400, 2_458_624)
 
 
@@ -510,6 +510,8 @@ def request_for(args: argparse.Namespace) -> tuple[dict[str, Any], str | None]:
     criteria = dict(args.option) if args.command == "choice" else args.level if args.command == "score" else None
     if args.image and args.provider == "cloudflare":
         raise CliError("--image is not supported with the cloudflare provider; use run with Clef's images field")
+    if args.image and args.provider == "openrouter":
+        raise CliError("--image is not supported with the openrouter provider; it drops image assets, so use typesafe")
     state = None if args.image and args.state is None else state_value(args.state, args.json_state)
     payload = question_request(
         args.command,
